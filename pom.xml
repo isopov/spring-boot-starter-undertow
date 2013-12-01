@@ -14,9 +14,9 @@
 
 
 	<scm>
-		<connection>scm:git:git://github.com/isopov/spring-boot-starter-undertow.git</connection>
-		<developerConnection>scm:git:git://github.com/isopov/spring-boot-starter-undertow.git</developerConnection>
-		<url>https://github.com/isopov/spring-boot-starter-undertow</url>
+		<connection>scm:git:git@github.com:isopov/spring-boot-starter-undertow.git</connection>
+		<developerConnection>scm:git:git@github.com:isopov/spring-boot-starter-undertow.git</developerConnection>
+		<url>scm:git:git@github.com:isopov/spring-boot-starter-undertow.git</url>
 	</scm>
 
 	<dependencies>
