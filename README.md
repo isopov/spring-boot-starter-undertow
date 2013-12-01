@@ -1,27 +1,23 @@
-This is a try to add "Undertow":http://undertow.io servlet container option to the "spring-boot":http://projects.spring.io/spring-boot/ along the Jetty and Tomcat servlet containers.
+This is a try to add [Undertow](http://undertow.io) servlet container option to the [spring-boot](http://projects.spring.io/spring-boot/) along the Jetty and Tomcat servlet containers.
 
-Undertow is the basis of the "Wildfly":http://www.wildfly.org/ Application Server which is the basis of the Jboss Application Server and is based on the "XNIO":http://www.jboss.org/xnio lowlevel I/O library.
+Undertow is the basis of the [Wildfly](http://www.wildfly.org/) Application Server which is the basis of the Jboss Application Server and is based on the [XNIO](http://www.jboss.org/xnio) lowlevel I/O library.
 
 To use it (it is now capable of serving only very simple hello world applications) add:
-<pre>
-<code>
+```
 <dependency>
 	<groupId>com.sopovs.moradanen.spring.boot.undertow</groupId>
 	<artifactId>spring-boot-starter-undertow</artifactId>
 	<version>0.0.1</version>
 </dependency>
-</code>
-</pre>
+```
 
 to the dependencies of your spring-boot project and 
-<pre>
-<code>
+```
 <repository>
 	<id>isopov-dintray</id>
 	<name>isopov Bintray</name>
 	<url>http://dl.bintray.com/isopov/maven/</url>
 </repository>
-</code>
-</pre>
+```
 
 to the repositories section.
