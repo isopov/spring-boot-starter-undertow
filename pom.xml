@@ -11,6 +11,14 @@
 	<artifactId>spring-boot-starter-undertow</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
+
+
+	<scm>
+		<connection>scm:git:git://github.com/isopov/spring-boot-starter-undertow.git</connection>
+		<developerConnection>scm:git:git://github.com/isopov/spring-boot-starter-undertow.git</developerConnection>
+		<url>https://github.com/isopov/spring-boot-starter-undertow</url>
+	</scm>
+
 	<dependencies>
 		<dependency>
 			<groupId>io.undertow</groupId>
@@ -25,6 +33,19 @@
 		</dependency>
 	</dependencies>
 
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.4.2</version>
+				<configuration>
+					<tagNameFormat>${project.version}</tagNameFormat>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
 	<repositories>
 		<repository>
 			<id>spring-milestones</id>
@@ -32,4 +53,8 @@
 			<url>http://repo.spring.io/milestone</url>
 		</repository>
 	</repositories>
+
+
+
+
 </project>
