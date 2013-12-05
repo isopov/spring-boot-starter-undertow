@@ -21,7 +21,7 @@ public class EmbeddedUndertowConfiguration {
 
 	
 	/**
-	 * Nested configuration for if Tomcat is being used.
+	 * Nested configuration for if Undertow is being used.
 	 */
 	@Configuration
 	@ConditionalOnClass({ Servlet.class, Undertow.class })

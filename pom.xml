@@ -20,11 +20,21 @@
 		<tag>HEAD</tag>
 	</scm>
 
+	<properties>
+		<undertow.version>1.0.0.Beta26</undertow.version>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>io.undertow</groupId>
 			<artifactId>undertow-servlet</artifactId>
-			<version>1.0.0.Beta25</version>
+			<version>${undertow.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.undertow</groupId>
+			<artifactId>undertow-jsp</artifactId>
+			<version>${undertow.version}</version>
+			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
