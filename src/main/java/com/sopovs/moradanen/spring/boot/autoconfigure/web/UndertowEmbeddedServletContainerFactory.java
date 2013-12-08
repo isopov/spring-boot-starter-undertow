@@ -4,25 +4,19 @@ import static io.undertow.servlet.Servlets.defaultContainer;
 import static io.undertow.servlet.Servlets.deployment;
 import static io.undertow.servlet.Servlets.servlet;
 import io.undertow.Undertow;
-import io.undertow.jsp.HackInstanceManager;
-import io.undertow.jsp.JspServletBuilder;
 import io.undertow.server.handlers.resource.FileResourceManager;
 import io.undertow.servlet.api.DeploymentInfo;
 import io.undertow.servlet.api.DeploymentManager;
 import io.undertow.servlet.handlers.DefaultServlet;
 
 import java.util.Arrays;
-import java.util.HashMap;
 
-import org.apache.jasper.deploy.JspPropertyGroup;
-import org.apache.jasper.deploy.TagLibraryInfo;
 import org.springframework.boot.context.embedded.AbstractEmbeddedServletContainerFactory;
 import org.springframework.boot.context.embedded.EmbeddedServletContainer;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerException;
 import org.springframework.boot.context.embedded.ServletContextInitializer;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 public class UndertowEmbeddedServletContainerFactory extends
@@ -77,11 +71,9 @@ public class UndertowEmbeddedServletContainerFactory extends
 		if (isRegisterDefaultServlet()) {
 			servletBuilder.addServlet(servlet("default", DefaultServlet.class));
 		}
-		// TODO FIXME spring taglib is not usable
-		if (isRegisterJspServlet()
-				&& ClassUtils.isPresent("io.undertow.jsp.JspServletBuilder",
-						getClass().getClassLoader())) {
-			JspServletFactory.addJspServlet(servletBuilder);
+		if (isRegisterJspServlet()) {
+			throw new IllegalStateException(
+					"JSPs are not supported with Undertow");
 		}
 		servletBuilder.setResourceManager(new FileResourceManager(
 				getValidDocumentRoot(), 0));
@@ -111,18 +103,4 @@ public class UndertowEmbeddedServletContainerFactory extends
 	public void setResourceLoader(ResourceLoader resourceLoader) {
 		this.resourceLoader = resourceLoader;
 	}
-
-	private static class JspServletFactory {
-		public static void addJspServlet(DeploymentInfo servletBuilder) {
-
-			servletBuilder.addServlet(JspServletBuilder.createServlet("jsp",
-					"*.jsp"));
-			JspServletBuilder.setupDeployment(servletBuilder,
-					new HashMap<String, JspPropertyGroup>(),
-					new HashMap<String, TagLibraryInfo>(),
-					new HackInstanceManager());
-		}
-
-	}
-
 }
