@@ -4,23 +4,29 @@ import static io.undertow.servlet.Servlets.defaultContainer;
 import static io.undertow.servlet.Servlets.deployment;
 import static io.undertow.servlet.Servlets.servlet;
 import io.undertow.Undertow;
+import io.undertow.server.handlers.resource.ClassPathResourceManager;
 import io.undertow.server.handlers.resource.FileResourceManager;
 import io.undertow.servlet.api.DeploymentInfo;
 import io.undertow.servlet.api.DeploymentManager;
 import io.undertow.servlet.handlers.DefaultServlet;
 
+import java.io.File;
 import java.util.Arrays;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.embedded.AbstractEmbeddedServletContainerFactory;
 import org.springframework.boot.context.embedded.EmbeddedServletContainer;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerException;
 import org.springframework.boot.context.embedded.ServletContextInitializer;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.util.StringUtils;
 
 public class UndertowEmbeddedServletContainerFactory extends
 		AbstractEmbeddedServletContainerFactory implements ResourceLoaderAware {
+
+	private final Logger logger = LoggerFactory
+			.getLogger(UndertowEmbeddedServletContainerFactory.class);
 
 	private ResourceLoader resourceLoader;
 
@@ -64,20 +70,23 @@ public class UndertowEmbeddedServletContainerFactory extends
 
 		DeploymentInfo servletBuilder = deployment();
 		servletBuilder.setClassLoader(resourceLoader.getClassLoader());
-		String contextPath = getContextPath();
-		contextPath = StringUtils.hasLength(contextPath) ? contextPath : "/";
-		servletBuilder.setContextPath(contextPath);
-		servletBuilder.setDeploymentName(contextPath);
+		servletBuilder.setContextPath(getContextPath());
+		servletBuilder.setDeploymentName("TODO");
 		if (isRegisterDefaultServlet()) {
 			servletBuilder.addServlet(servlet("default", DefaultServlet.class));
 		}
 		if (isRegisterJspServlet()) {
-			throw new IllegalStateException(
-					"JSPs are not supported with Undertow");
+			logger.error("JSPs are not supported with Undertow");
 		}
-		servletBuilder.setResourceManager(new FileResourceManager(
-				getValidDocumentRoot(), 0));
-
+		File root = getValidDocumentRoot();
+		if (root != null) {
+			servletBuilder.setResourceManager(new FileResourceManager(
+					getValidDocumentRoot(), 0));
+		} else {
+			// TODO is this needed?
+			servletBuilder.setResourceManager(new ClassPathResourceManager(
+					resourceLoader.getClassLoader(), ""));
+		}
 		try {
 			DeploymentManager manager = defaultContainer().addDeployment(
 					servletBuilder);
