@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starters</artifactId>
-		<version>0.5.0.M6</version>
+		<version>0.5.0.M7</version>
 	</parent>
 	<groupId>com.sopovs.moradanen.spring.boot.undertow</groupId>
 	<artifactId>spring-boot-starter-undertow</artifactId>
@@ -20,7 +20,7 @@
 	</scm>
 
 	<properties>
-		<undertow.version>1.0.0.Beta28</undertow.version>
+		<undertow.version>1.0.0.Beta30</undertow.version>
 	</properties>
 
 	<dependencies>
