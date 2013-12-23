@@ -18,98 +18,118 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.embedded.AbstractEmbeddedServletContainerFactory;
 import org.springframework.boot.context.embedded.EmbeddedServletContainer;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerException;
+import org.springframework.boot.context.embedded.ErrorPage;
 import org.springframework.boot.context.embedded.ServletContextInitializer;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.ResourceLoader;
 
 public class UndertowEmbeddedServletContainerFactory extends
-		AbstractEmbeddedServletContainerFactory implements ResourceLoaderAware {
+        AbstractEmbeddedServletContainerFactory implements ResourceLoaderAware {
 
-	private final Logger logger = LoggerFactory
-			.getLogger(UndertowEmbeddedServletContainerFactory.class);
+    private final Logger logger = LoggerFactory
+            .getLogger(UndertowEmbeddedServletContainerFactory.class);
 
-	private ResourceLoader resourceLoader;
+    private ResourceLoader resourceLoader;
 
-	/**
-	 * Create a new {@link UndertowEmbeddedServletContainerFactory} instance.
-	 */
-	public UndertowEmbeddedServletContainerFactory() {
-		super();
-	}
+    /**
+     * Create a new {@link UndertowEmbeddedServletContainerFactory} instance.
+     */
+    public UndertowEmbeddedServletContainerFactory() {
+        super();
+    }
 
-	/**
-	 * Create a new {@link UndertowEmbeddedServletContainerFactory} that listens
-	 * for requests using the specified port.
-	 * 
-	 * @param port
-	 *            the port to listen on
-	 */
-	public UndertowEmbeddedServletContainerFactory(int port) {
-		super(port);
-	}
+    /**
+     * Create a new {@link UndertowEmbeddedServletContainerFactory} that listens
+     * for requests using the specified port.
+     * 
+     * @param port
+     *            the port to listen on
+     */
+    public UndertowEmbeddedServletContainerFactory(int port) {
+        super(port);
+    }
 
-	/**
-	 * Create a new {@link UndertowEmbeddedServletContainerFactory} with the
-	 * specified context path and port.
-	 * 
-	 * @param contextPath
-	 *            root the context path
-	 * @param port
-	 *            the port to listen on
-	 */
-	public UndertowEmbeddedServletContainerFactory(String contextPath, int port) {
-		super(contextPath, port);
-	}
+    /**
+     * Create a new {@link UndertowEmbeddedServletContainerFactory} with the
+     * specified context path and port.
+     * 
+     * @param contextPath
+     *            root the context path
+     * @param port
+     *            the port to listen on
+     */
+    public UndertowEmbeddedServletContainerFactory(String contextPath, int port) {
+        super(contextPath, port);
+    }
 
-	@Override
-	public EmbeddedServletContainer getEmbeddedServletContainer(
-			ServletContextInitializer... initializers) {
-		if (getPort() == 0) {
-			return EmbeddedServletContainer.NONE;
-		}
+    @Override
+    public EmbeddedServletContainer getEmbeddedServletContainer(
+            ServletContextInitializer... initializers) {
+        if (getPort() == 0) {
+            return EmbeddedServletContainer.NONE;
+        }
 
-		DeploymentInfo servletBuilder = deployment();
-		servletBuilder.setClassLoader(resourceLoader.getClassLoader());
-		servletBuilder.setContextPath(getContextPath());
-		servletBuilder.setDeploymentName("TODO");
-		if (isRegisterDefaultServlet()) {
-			servletBuilder.addServlet(servlet("default", DefaultServlet.class));
-		}
-		if (isRegisterJspServlet()) {
-			logger.error("JSPs are not supported with Undertow");
-		}
-		File root = getValidDocumentRoot();
-		if (root != null) {
-			servletBuilder.setResourceManager(new FileResourceManager(
-					getValidDocumentRoot(), 0));
-		} else {
-			// TODO is this needed?
-			servletBuilder.setResourceManager(new ClassPathResourceManager(
-					resourceLoader.getClassLoader(), ""));
-		}
-		try {
-			DeploymentManager manager = defaultContainer().addDeployment(
-					servletBuilder);
-			SpringBootServletExtension.initializers = Arrays
-					.asList(initializers);
-			manager.deploy();
+        DeploymentInfo servletBuilder = deployment();
+        servletBuilder.setClassLoader(resourceLoader.getClassLoader());
+        servletBuilder.setContextPath(getContextPath());
+        servletBuilder.setDeploymentName("TODO");
+        if (isRegisterDefaultServlet()) {
+            servletBuilder.addServlet(servlet("default", DefaultServlet.class));
+        }
+        if (isRegisterJspServlet()) {
+            logger.error("JSPs are not supported with Undertow");
+        }
+        for (ErrorPage springErrorPage : getErrorPages()) {
+            if (springErrorPage.getStatus() != null) {
+                io.undertow.servlet.api.ErrorPage undertowErrorpage =
+                        new io.undertow.servlet.api.ErrorPage(springErrorPage.getPath(),
+                                springErrorPage.getStatusCode());
+                servletBuilder.addErrorPage(undertowErrorpage);
+            } else if (springErrorPage.getException() != null) {
+                io.undertow.servlet.api.ErrorPage undertowErrorpage =
+                        new io.undertow.servlet.api.ErrorPage(springErrorPage.getPath(),
+                                springErrorPage.getException());
+                servletBuilder.addErrorPage(undertowErrorpage);
+            } else {
+                // TODO how is this supposed to work?
+                io.undertow.servlet.api.ErrorPage undertowErrorpage =
+                        new io.undertow.servlet.api.ErrorPage(springErrorPage.getPath());
+                servletBuilder.addErrorPage(undertowErrorpage);
+            }
 
-			manager.getDeployment().getSessionManager()
-					.setDefaultSessionTimeout(getSessionTimeout());
+        }
+        File root = getValidDocumentRoot();
+        if (root != null) {
+            servletBuilder.setResourceManager(new FileResourceManager(
+                    getValidDocumentRoot(), 0));
+        } else {
+            // TODO is this needed?
+            servletBuilder.setResourceManager(new ClassPathResourceManager(
+                    resourceLoader.getClassLoader(), ""));
+        }
+        try {
+            DeploymentManager manager = defaultContainer().addDeployment(
+                    servletBuilder);
+            SpringBootServletExtension.initializers = Arrays
+                    .asList(initializers);
+            manager.deploy();
 
-			Undertow undertow = Undertow.builder()
-					// TODO localhost or something else?
-					.addListener(getPort(), "localhost")
-					.setHandler(manager.start()).build();
-			return new UndertowEmbeddedServletContainer(undertow);
-		} catch (Exception ex) {
-			throw new EmbeddedServletContainerException(
-					"Unable to start embdedded Undertow", ex);
-		}
-	}
+            manager.getDeployment().getSessionManager()
+                    .setDefaultSessionTimeout(getSessionTimeout());
 
-	@Override
-	public void setResourceLoader(ResourceLoader resourceLoader) {
-		this.resourceLoader = resourceLoader;
-	}
+            Undertow undertow = Undertow.builder()
+                    // TODO localhost or something else?
+                    .addListener(getPort(), "localhost")
+                    .setHandler(manager.start()).build();
+            return new UndertowEmbeddedServletContainer(undertow);
+        } catch (Exception ex) {
+            throw new EmbeddedServletContainerException(
+                    "Unable to start embdedded Undertow", ex);
+        }
+    }
+
+    @Override
+    public void setResourceLoader(ResourceLoader resourceLoader) {
+        this.resourceLoader = resourceLoader;
+    }
 }
