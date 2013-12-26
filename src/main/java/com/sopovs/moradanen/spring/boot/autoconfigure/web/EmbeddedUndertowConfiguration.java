@@ -28,7 +28,7 @@ public class EmbeddedUndertowConfiguration {
     public static class EmbeddedUndertow {
 
         @Bean
-        public UndertowEmbeddedServletContainerFactory tomcatEmbeddedServletContainerFactory() {
+        public UndertowEmbeddedServletContainerFactory undertowEmbeddedServletContainerFactory() {
             return new UndertowEmbeddedServletContainerFactory();
         }
 

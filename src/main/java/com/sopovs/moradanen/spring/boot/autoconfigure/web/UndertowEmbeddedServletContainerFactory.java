@@ -4,17 +4,28 @@ import static io.undertow.servlet.Servlets.defaultContainer;
 import static io.undertow.servlet.Servlets.deployment;
 import static io.undertow.servlet.Servlets.servlet;
 import io.undertow.Undertow;
+import io.undertow.UndertowMessages;
 import io.undertow.server.handlers.resource.ClassPathResourceManager;
 import io.undertow.server.handlers.resource.FileResourceManager;
+import io.undertow.server.handlers.resource.Resource;
+import io.undertow.server.handlers.resource.ResourceChangeListener;
+import io.undertow.server.handlers.resource.ResourceManager;
+import io.undertow.server.handlers.resource.URLResource;
 import io.undertow.servlet.api.DeploymentInfo;
 import io.undertow.servlet.api.DeploymentManager;
 import io.undertow.servlet.handlers.DefaultServlet;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.util.Arrays;
+
+import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.boot.context.embedded.AbstractEmbeddedServletContainerFactory;
 import org.springframework.boot.context.embedded.EmbeddedServletContainer;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerException;
@@ -24,12 +35,14 @@ import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.ResourceLoader;
 
 public class UndertowEmbeddedServletContainerFactory extends
-        AbstractEmbeddedServletContainerFactory implements ResourceLoaderAware {
+        AbstractEmbeddedServletContainerFactory implements ResourceLoaderAware, DisposableBean {
 
     private final Logger logger = LoggerFactory
             .getLogger(UndertowEmbeddedServletContainerFactory.class);
 
     private ResourceLoader resourceLoader;
+
+    private File explodedWar;
 
     /**
      * Create a new {@link UndertowEmbeddedServletContainerFactory} instance.
@@ -62,6 +75,10 @@ public class UndertowEmbeddedServletContainerFactory extends
         super(contextPath, port);
     }
 
+    private String getDeploymentName() {
+        return "TODO";
+    }
+
     @Override
     public EmbeddedServletContainer getEmbeddedServletContainer(
             ServletContextInitializer... initializers) {
@@ -72,7 +89,7 @@ public class UndertowEmbeddedServletContainerFactory extends
         DeploymentInfo servletBuilder = deployment();
         servletBuilder.setClassLoader(resourceLoader.getClassLoader());
         servletBuilder.setContextPath(getContextPath());
-        servletBuilder.setDeploymentName("TODO");
+        servletBuilder.setDeploymentName(getDeploymentName());
         if (isRegisterDefaultServlet()) {
             servletBuilder.addServlet(servlet("default", DefaultServlet.class));
         }
@@ -99,23 +116,20 @@ public class UndertowEmbeddedServletContainerFactory extends
 
         }
         File root = getValidDocumentRoot();
-        if (root != null) {
-            servletBuilder.setResourceManager(new FileResourceManager(
-                    getValidDocumentRoot(), 0));
+        if (root != null && root.isDirectory()) {
+            servletBuilder.setResourceManager(new FileResourceManager(getValidDocumentRoot(), 0));
+        } else if (root.isFile()) {
+            servletBuilder.setResourceManager(getJarResourceManager());
         } else {
             // TODO is this needed?
-            servletBuilder.setResourceManager(new ClassPathResourceManager(
-                    resourceLoader.getClassLoader(), ""));
+            servletBuilder.setResourceManager(new ClassPathResourceManager(resourceLoader.getClassLoader(), ""));
         }
         try {
-            DeploymentManager manager = defaultContainer().addDeployment(
-                    servletBuilder);
-            SpringBootServletExtension.initializers = Arrays
-                    .asList(initializers);
+            DeploymentManager manager = defaultContainer().addDeployment(servletBuilder);
+            SpringBootServletExtension.initializers = Arrays.asList(initializers);
             manager.deploy();
 
-            manager.getDeployment().getSessionManager()
-                    .setDefaultSessionTimeout(getSessionTimeout());
+            manager.getDeployment().getSessionManager().setDefaultSessionTimeout(getSessionTimeout());
 
             Undertow undertow = Undertow.builder()
                     // TODO localhost or something else?
@@ -131,5 +145,91 @@ public class UndertowEmbeddedServletContainerFactory extends
     @Override
     public void setResourceLoader(ResourceLoader resourceLoader) {
         this.resourceLoader = resourceLoader;
+    }
+
+    private ResourceManager getJarResourceManager() {
+        try {
+            // TODO hack to be rem,oved if JarResourceManager will be enough -
+            // or move option to perform this hack to configuration
+            explodedWar = File.createTempFile(getDeploymentName(), "-boot");
+            explodedWar.delete();
+            explodedWar.mkdir();
+            ZipFile zipFile = new ZipFile(getValidDocumentRoot());
+            zipFile.extractAll(explodedWar.getAbsolutePath());
+            return new FileResourceManager(explodedWar, 0);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ZipException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @SuppressWarnings("unused")
+    // Freemarker views are working this way but can not load taglibs from other
+    // jars
+    private static class JarResourcemanager implements ResourceManager {
+        private final String jarPath;
+
+        public JarResourcemanager(File jarFile) {
+            this(jarFile.getAbsolutePath());
+        }
+
+        public JarResourcemanager(String jarPath) {
+            this.jarPath = jarPath;
+        }
+
+        @Override
+        public void close() throws IOException {
+            // no code
+        }
+
+        @Override
+        public Resource getResource(String path) throws IOException {
+            URL url = new URL("jar:file:" + jarPath + "!" + path);
+            URLResource resource = new URLResource(url, url.openConnection(), path);
+            if (resource.getContentLength() < 0) {
+                return null;
+            }
+            return resource;
+        }
+
+        @Override
+        public boolean isResourceChangeListenerSupported() {
+            return false;
+        }
+
+        @Override
+        public void registerResourceChangeListener(ResourceChangeListener listener) {
+            throw UndertowMessages.MESSAGES.resourceChangeListenerNotSupported();
+
+        }
+
+        @Override
+        public void removeResourceChangeListener(ResourceChangeListener listener) {
+            throw UndertowMessages.MESSAGES.resourceChangeListenerNotSupported();
+
+        }
+
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        if (explodedWar != null && explodedWar.isDirectory()) {
+            deleteFolder(explodedWar);
+        }
+    }
+
+    private static void deleteFolder(File folder) {
+        File[] files = folder.listFiles();
+        if (files != null) {
+            for (File f : files) {
+                if (f.isDirectory()) {
+                    deleteFolder(f);
+                } else {
+                    f.delete();
+                }
+            }
+        }
+        folder.delete();
     }
 }
