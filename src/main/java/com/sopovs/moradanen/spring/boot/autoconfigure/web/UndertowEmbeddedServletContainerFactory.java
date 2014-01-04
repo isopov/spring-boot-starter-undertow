@@ -118,7 +118,7 @@ public class UndertowEmbeddedServletContainerFactory extends
         File root = getValidDocumentRoot();
         if (root != null && root.isDirectory()) {
             servletBuilder.setResourceManager(new FileResourceManager(getValidDocumentRoot(), 0));
-        } else if (root.isFile()) {
+        } else if (root != null && root.isFile()) {
             servletBuilder.setResourceManager(getJarResourceManager());
         } else {
             // TODO is this needed?
