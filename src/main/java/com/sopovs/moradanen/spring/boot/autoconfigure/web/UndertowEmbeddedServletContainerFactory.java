@@ -13,12 +13,19 @@ import io.undertow.server.handlers.resource.ResourceManager;
 import io.undertow.server.handlers.resource.URLResource;
 import io.undertow.servlet.api.DeploymentInfo;
 import io.undertow.servlet.api.DeploymentManager;
+import io.undertow.servlet.api.InstanceFactory;
+import io.undertow.servlet.api.InstanceHandle;
+import io.undertow.servlet.api.ListenerInfo;
 import io.undertow.servlet.handlers.DefaultServlet;
+import io.undertow.servlet.util.ImmediateInstanceHandle;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Arrays;
+
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+import javax.servlet.ServletException;
 
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
@@ -80,13 +87,18 @@ public class UndertowEmbeddedServletContainerFactory extends
     }
 
     @Override
-    public EmbeddedServletContainer getEmbeddedServletContainer(
-            ServletContextInitializer... initializers) {
+    public EmbeddedServletContainer getEmbeddedServletContainer(ServletContextInitializer... initializers) {
         if (getPort() == 0) {
             return EmbeddedServletContainer.NONE;
         }
 
         DeploymentInfo servletBuilder = deployment();
+
+        servletBuilder.addListener(
+                new ListenerInfo(UndertowSpringServletContextListener.class,
+                        new UndertowSpringServletContextListenerFactory(
+                                new UndertowSpringServletContextListener(initializers))));
+
         servletBuilder.setClassLoader(resourceLoader.getClassLoader());
         servletBuilder.setContextPath(getContextPath());
         servletBuilder.setDeploymentName(getDeploymentName());
@@ -126,7 +138,6 @@ public class UndertowEmbeddedServletContainerFactory extends
         }
         try {
             DeploymentManager manager = defaultContainer().addDeployment(servletBuilder);
-            SpringBootServletExtension.initializers = Arrays.asList(initializers);
             manager.deploy();
 
             manager.getDeployment().getSessionManager().setDefaultSessionTimeout(getSessionTimeout());
@@ -232,4 +243,45 @@ public class UndertowEmbeddedServletContainerFactory extends
         }
         folder.delete();
     }
+
+    private static class UndertowSpringServletContextListenerFactory implements
+            InstanceFactory<UndertowSpringServletContextListener> {
+
+        private final UndertowSpringServletContextListener listener;
+
+        public UndertowSpringServletContextListenerFactory(UndertowSpringServletContextListener listener) {
+            this.listener = listener;
+        }
+
+        @Override
+        public InstanceHandle<UndertowSpringServletContextListener> createInstance() throws InstantiationException {
+            return new ImmediateInstanceHandle<UndertowSpringServletContextListener>(listener);
+        }
+
+    }
+
+    private static class UndertowSpringServletContextListener implements ServletContextListener {
+        private final ServletContextInitializer[] initializers;
+
+        public UndertowSpringServletContextListener(ServletContextInitializer... initializers) {
+            this.initializers = initializers;
+        }
+
+        @Override
+        public void contextInitialized(ServletContextEvent sce) {
+            try {
+                for (ServletContextInitializer initializer : initializers) {
+                    initializer.onStartup(sce.getServletContext());
+                }
+            } catch (ServletException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Override
+        public void contextDestroyed(ServletContextEvent sce) {
+            // no code
+        }
+    }
+
 }
