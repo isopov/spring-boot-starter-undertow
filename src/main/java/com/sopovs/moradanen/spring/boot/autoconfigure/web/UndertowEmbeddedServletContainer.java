@@ -11,6 +11,9 @@ import org.springframework.util.ReflectionUtils;
 public class UndertowEmbeddedServletContainer implements EmbeddedServletContainer {
 
     private final Undertow undertow;
+    // TODO is this safe? is it needed? Why spring-boot calls stop without
+    // calling start before?
+    private volatile boolean started = false;
 
     public UndertowEmbeddedServletContainer(Undertow undertow) {
         this.undertow = undertow;
@@ -19,12 +22,14 @@ public class UndertowEmbeddedServletContainer implements EmbeddedServletContaine
     @Override
     public void start() throws EmbeddedServletContainerException {
         undertow.start();
-
+        started = true;
     }
 
     @Override
     public void stop() throws EmbeddedServletContainerException {
-        undertow.stop();
+        if (started) {
+            undertow.stop();
+        }
     }
 
     @SuppressWarnings("unchecked")
