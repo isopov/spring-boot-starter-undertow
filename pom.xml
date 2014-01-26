@@ -8,7 +8,7 @@
 	</parent>
 	<groupId>com.sopovs.moradanen.spring.boot.undertow</groupId>
 	<artifactId>spring-boot-starter-undertow</artifactId>
-	<version>0.0.12-SNAPSHOT</version>
+	<version>0.0.12</version>
 	<packaging>jar</packaging>
 
 
@@ -16,7 +16,7 @@
 		<connection>scm:git:git@github.com:isopov/spring-boot-starter-undertow.git</connection>
 		<developerConnection>scm:git:git@github.com:isopov/spring-boot-starter-undertow.git</developerConnection>
 		<url>scm:git:git@github.com:isopov/spring-boot-starter-undertow.git</url>
-		<tag>HEAD</tag>
+		<tag>0.0.12</tag>
 	</scm>
 
 	<properties>
