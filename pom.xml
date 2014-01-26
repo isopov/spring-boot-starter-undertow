@@ -20,7 +20,7 @@
 	</scm>
 
 	<properties>
-		<undertow.version>1.0.0.Beta31</undertow.version>
+		<undertow.version>1.0.0.Beta33</undertow.version>
 	</properties>
 
 	<dependencies>
