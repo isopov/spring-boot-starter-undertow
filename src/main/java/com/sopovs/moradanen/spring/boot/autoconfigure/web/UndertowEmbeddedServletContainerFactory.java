@@ -4,6 +4,7 @@ import static io.undertow.servlet.Servlets.defaultContainer;
 import static io.undertow.servlet.Servlets.deployment;
 import static io.undertow.servlet.Servlets.servlet;
 import io.undertow.Undertow;
+import io.undertow.Undertow.Builder;
 import io.undertow.UndertowMessages;
 import io.undertow.server.handlers.resource.ClassPathResourceManager;
 import io.undertow.server.handlers.resource.FileResourceManager;
@@ -50,6 +51,12 @@ public class UndertowEmbeddedServletContainerFactory extends
     private ResourceLoader resourceLoader;
 
     private File explodedWar;
+
+    private Integer bufferSize;
+    private Integer buffersPerRegion;
+    private Integer ioThreads;
+    private Integer workerThreads;
+    private Boolean directBuffers;
 
     /**
      * Create a new {@link UndertowEmbeddedServletContainerFactory} instance.
@@ -142,9 +149,26 @@ public class UndertowEmbeddedServletContainerFactory extends
 
             manager.getDeployment().getSessionManager().setDefaultSessionTimeout(getSessionTimeout());
 
-            Undertow undertow = Undertow.builder()
+            Builder builder = Undertow.builder();
+            if (bufferSize != null) {
+                builder.setBufferSize(bufferSize);
+            }
+            if (buffersPerRegion != null) {
+                builder.setBuffersPerRegion(buffersPerRegion);
+            }
+            if (ioThreads != null) {
+                builder.setIoThreads(ioThreads);
+            }
+            if (workerThreads != null) {
+                builder.setWorkerThreads(workerThreads);
+            }
+            if (directBuffers != null) {
+                builder.setDirectBuffers(directBuffers);
+            }
+
+            Undertow undertow = builder
                     // TODO localhost or something else?
-                    .addListener(getPort(), "localhost")
+                    .addHttpListener(getPort(), "localhost")
                     .setHandler(manager.start()).build();
             return new UndertowEmbeddedServletContainer(undertow);
         } catch (Exception ex) {
@@ -160,7 +184,7 @@ public class UndertowEmbeddedServletContainerFactory extends
 
     private ResourceManager getJarResourceManager() {
         try {
-            // TODO hack to be rem,oved if JarResourceManager will be enough -
+            // TODO hack to be removed if JarResourceManager will be enough -
             // or move option to perform this hack to configuration
             explodedWar = File.createTempFile(getDeploymentName(), "-boot");
             explodedWar.delete();
@@ -173,6 +197,26 @@ public class UndertowEmbeddedServletContainerFactory extends
         } catch (ZipException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void setBufferSize(Integer bufferSize) {
+        this.bufferSize = bufferSize;
+    }
+
+    public void setBuffersPerRegion(Integer buffersPerRegion) {
+        this.buffersPerRegion = buffersPerRegion;
+    }
+
+    public void setIoThreads(Integer ioThreads) {
+        this.ioThreads = ioThreads;
+    }
+
+    public void setWorkerThreads(Integer workerThreads) {
+        this.workerThreads = workerThreads;
+    }
+
+    public void setDirectBuffers(Boolean directBuffers) {
+        this.directBuffers = directBuffers;
     }
 
     @SuppressWarnings("unused")

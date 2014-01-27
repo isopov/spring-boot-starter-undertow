@@ -1,3 +1,4 @@
 # Auto Configure
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.sopovs.moradanen.spring.boot.autoconfigure.web.EmbeddedUndertowConfiguration
+com.sopovs.moradanen.spring.boot.autoconfigure.web.EmbeddedUndertowConfiguration,\
+com.sopovs.moradanen.spring.boot.autoconfigure.web.UndertowPropertiesAutoConfiguration
