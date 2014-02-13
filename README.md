@@ -7,7 +7,7 @@ To use it (it is now capable of serving only very simple hello world application
 <dependency>
 	<groupId>com.sopovs.moradanen.spring.boot.undertow</groupId>
 	<artifactId>spring-boot-starter-undertow</artifactId>
-	<version>0.0.1</version>
+	<version>${version}</version>
 </dependency>
 ```
 
