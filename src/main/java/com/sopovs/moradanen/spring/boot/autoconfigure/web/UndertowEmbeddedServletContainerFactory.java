@@ -17,6 +17,7 @@ import io.undertow.servlet.api.DeploymentManager;
 import io.undertow.servlet.api.InstanceFactory;
 import io.undertow.servlet.api.InstanceHandle;
 import io.undertow.servlet.api.ListenerInfo;
+import io.undertow.servlet.api.MimeMapping;
 import io.undertow.servlet.handlers.DefaultServlet;
 import io.undertow.servlet.util.ImmediateInstanceHandle;
 
@@ -38,6 +39,7 @@ import org.springframework.boot.context.embedded.AbstractEmbeddedServletContaine
 import org.springframework.boot.context.embedded.EmbeddedServletContainer;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerException;
 import org.springframework.boot.context.embedded.ErrorPage;
+import org.springframework.boot.context.embedded.MimeMappings.Mapping;
 import org.springframework.boot.context.embedded.ServletContextInitializer;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.ResourceLoader;
@@ -106,7 +108,11 @@ public class UndertowEmbeddedServletContainerFactory extends
                         new UndertowSpringServletContextListenerFactory(
                                 new UndertowSpringServletContextListener(initializers))));
 
-        servletBuilder.setClassLoader(resourceLoader.getClassLoader());
+        if (resourceLoader != null) {
+            servletBuilder.setClassLoader(resourceLoader.getClassLoader());
+        } else {
+            servletBuilder.setClassLoader(getClass().getClassLoader());
+        }
         servletBuilder.setContextPath(getContextPath());
         servletBuilder.setDeploymentName(getDeploymentName());
         if (isRegisterDefaultServlet()) {
@@ -139,9 +145,15 @@ public class UndertowEmbeddedServletContainerFactory extends
             servletBuilder.setResourceManager(new FileResourceManager(getValidDocumentRoot(), 0));
         } else if (root != null && root.isFile()) {
             servletBuilder.setResourceManager(getJarResourceManager());
-        } else {
+        } else if (resourceLoader != null) {
             // TODO is this needed?
             servletBuilder.setResourceManager(new ClassPathResourceManager(resourceLoader.getClassLoader(), ""));
+        } else {
+            // TODO is this needed?
+            servletBuilder.setResourceManager(new ClassPathResourceManager(getClass().getClassLoader(), ""));
+        }
+        for (Mapping mimeMapping : getMimeMappings()) {
+            servletBuilder.addMimeMapping(new MimeMapping(mimeMapping.getExtension(), mimeMapping.getMimeType()));
         }
         try {
             DeploymentManager manager = defaultContainer().addDeployment(servletBuilder);
@@ -170,7 +182,7 @@ public class UndertowEmbeddedServletContainerFactory extends
                     // TODO localhost or something else?
                     .addHttpListener(getPort(), "localhost")
                     .setHandler(manager.start()).build();
-            return new UndertowEmbeddedServletContainer(undertow);
+            return new UndertowEmbeddedServletContainer(undertow, getPort());
         } catch (Exception ex) {
             throw new EmbeddedServletContainerException(
                     "Unable to start embdedded Undertow", ex);
