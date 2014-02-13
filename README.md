@@ -25,5 +25,5 @@ to the dependencies of your spring-boot project and
 to the repositories section.
 
 
-[travis]:http://travis-ci.org/checkstyle/checkstyle
-[travis img]:https://secure.travis-ci.org/checkstyle/checkstyle.png
+[travis]:http://travis-ci.org/isopov/spring-boot-starter-undertow
+[travis img]:https://secure.travis-ci.org/isopov/spring-boot-starter-undertow.png
