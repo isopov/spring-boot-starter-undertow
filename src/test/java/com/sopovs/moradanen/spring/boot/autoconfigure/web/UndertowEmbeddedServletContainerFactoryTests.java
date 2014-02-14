@@ -56,13 +56,4 @@ public class UndertowEmbeddedServletContainerFactoryTests extends
         // TODO
         super.mimeType();
     }
-
-    @Override
-    @Ignore
-    @Test
-    public void loadOnStartAfterContextIsInitialized() throws Exception {
-        // TODO
-        super.loadOnStartAfterContextIsInitialized();
-    }
-
 }

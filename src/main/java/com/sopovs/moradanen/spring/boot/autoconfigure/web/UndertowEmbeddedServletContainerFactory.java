@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.boot.context.embedded.AbstractEmbeddedServletContainerFactory;
 import org.springframework.boot.context.embedded.EmbeddedServletContainer;
-import org.springframework.boot.context.embedded.EmbeddedServletContainerException;
 import org.springframework.boot.context.embedded.ErrorPage;
 import org.springframework.boot.context.embedded.MimeMappings.Mapping;
 import org.springframework.boot.context.embedded.ServletContextInitializer;
@@ -155,39 +154,35 @@ public class UndertowEmbeddedServletContainerFactory extends
         for (Mapping mimeMapping : getMimeMappings()) {
             servletBuilder.addMimeMapping(new MimeMapping(mimeMapping.getExtension(), mimeMapping.getMimeType()));
         }
-        try {
-            DeploymentManager manager = defaultContainer().addDeployment(servletBuilder);
-           
-            manager.deploy();
 
-            manager.getDeployment().getSessionManager().setDefaultSessionTimeout(getSessionTimeout());
+        DeploymentManager manager = defaultContainer().addDeployment(servletBuilder);
 
-            Builder builder = Undertow.builder();
-            if (bufferSize != null) {
-                builder.setBufferSize(bufferSize);
-            }
-            if (buffersPerRegion != null) {
-                builder.setBuffersPerRegion(buffersPerRegion);
-            }
-            if (ioThreads != null) {
-                builder.setIoThreads(ioThreads);
-            }
-            if (workerThreads != null) {
-                builder.setWorkerThreads(workerThreads);
-            }
-            if (directBuffers != null) {
-                builder.setDirectBuffers(directBuffers);
-            }
+        manager.deploy();
 
-            Undertow undertow = builder
-                    // TODO localhost or something else?
-                    .addHttpListener(getPort(), "localhost")
-                    .setHandler(manager.start()).build();
-            return new UndertowEmbeddedServletContainer(undertow, getPort());
-        } catch (Exception ex) {
-            throw new EmbeddedServletContainerException(
-                    "Unable to start embdedded Undertow", ex);
+        manager.getDeployment().getSessionManager().setDefaultSessionTimeout(getSessionTimeout());
+
+        Builder builder = Undertow.builder();
+        if (bufferSize != null) {
+            builder.setBufferSize(bufferSize);
         }
+        if (buffersPerRegion != null) {
+            builder.setBuffersPerRegion(buffersPerRegion);
+        }
+        if (ioThreads != null) {
+            builder.setIoThreads(ioThreads);
+        }
+        if (workerThreads != null) {
+            builder.setWorkerThreads(workerThreads);
+        }
+        if (directBuffers != null) {
+            builder.setDirectBuffers(directBuffers);
+        }
+
+        // TODO localhost or something else?
+        builder.addHttpListener(getPort(), "localhost");
+
+        return new UndertowEmbeddedServletContainer(builder, manager, getPort());
+
     }
 
     @Override
