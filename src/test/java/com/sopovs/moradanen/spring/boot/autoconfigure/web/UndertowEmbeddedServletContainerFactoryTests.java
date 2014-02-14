@@ -60,14 +60,6 @@ public class UndertowEmbeddedServletContainerFactoryTests extends
     @Override
     @Ignore
     @Test
-    public void multipleConfigurations() throws Exception {
-        // TODO
-        super.multipleConfigurations();
-    }
-
-    @Override
-    @Ignore
-    @Test
     public void loadOnStartAfterContextIsInitialized() throws Exception {
         // TODO
         super.loadOnStartAfterContextIsInitialized();

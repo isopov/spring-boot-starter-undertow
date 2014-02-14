@@ -106,7 +106,7 @@ public class UndertowEmbeddedServletContainerFactory extends
         servletBuilder.addListener(
                 new ListenerInfo(UndertowSpringServletContextListener.class,
                         new UndertowSpringServletContextListenerFactory(
-                                new UndertowSpringServletContextListener(initializers))));
+                                new UndertowSpringServletContextListener(mergeInitializers(initializers)))));
 
         if (resourceLoader != null) {
             servletBuilder.setClassLoader(resourceLoader.getClassLoader());
@@ -157,6 +157,7 @@ public class UndertowEmbeddedServletContainerFactory extends
         }
         try {
             DeploymentManager manager = defaultContainer().addDeployment(servletBuilder);
+           
             manager.deploy();
 
             manager.getDeployment().getSessionManager().setDefaultSessionTimeout(getSessionTimeout());
