@@ -181,7 +181,7 @@ public class UndertowEmbeddedServletContainerFactory extends
         // TODO localhost or something else?
         builder.addHttpListener(getPort(), "localhost");
 
-        return new UndertowEmbeddedServletContainer(builder, manager, getPort());
+        return new UndertowEmbeddedServletContainer(builder, manager, getContextPath(), getPort());
 
     }
 

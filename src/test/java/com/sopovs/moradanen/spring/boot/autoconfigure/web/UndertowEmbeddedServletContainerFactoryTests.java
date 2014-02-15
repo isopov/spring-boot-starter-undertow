@@ -30,14 +30,6 @@ public class UndertowEmbeddedServletContainerFactoryTests extends
         super.errorPage();
     }
 
-    @Override
-    @Ignore
-    @Test
-    // Wait for the https://issues.jboss.org/browse/UNDERTOW-193
-    public void specificContextRoot() throws Exception {
-        super.specificContextRoot();
-    }
-
     @Test
     public void errorPage404() throws Exception {
         ConfigurableEmbeddedServletContainerFactory factory = getFactory();
