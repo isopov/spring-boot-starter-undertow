@@ -19,10 +19,8 @@ public class UndertowEmbeddedServletContainer implements EmbeddedServletContaine
     private final Builder builder;
     private final String contextPath;
     private final int port;
-    private volatile Undertow undertow;
-    // TODO is this safe? is it needed? Why spring-boot calls stop without
-    // calling start before?
-    private volatile boolean started = false;
+    private Undertow undertow;
+    private boolean started = false;
 
     public UndertowEmbeddedServletContainer(Builder builder, DeploymentManager manager, String contextPath, int port) {
         this.builder = builder;
@@ -32,7 +30,7 @@ public class UndertowEmbeddedServletContainer implements EmbeddedServletContaine
     }
 
     @Override
-    public void start() throws EmbeddedServletContainerException {
+    public synchronized void start() throws EmbeddedServletContainerException {
         if (undertow == null) {
             try {
                 HttpHandler servletHandler = manager.start();
