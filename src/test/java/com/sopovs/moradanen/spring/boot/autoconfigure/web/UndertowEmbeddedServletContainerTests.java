@@ -18,7 +18,7 @@ import io.undertow.servlet.api.DeploymentManager;
 
 import org.junit.Test;
 
-public class UndertowEmbeddedServletContainerTest {
+public class UndertowEmbeddedServletContainerTests {
 
     @Test
     public void testStartStopStartStop() {
