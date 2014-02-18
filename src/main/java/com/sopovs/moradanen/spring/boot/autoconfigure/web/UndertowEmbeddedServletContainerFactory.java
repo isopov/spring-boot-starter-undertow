@@ -18,6 +18,7 @@ import io.undertow.servlet.api.InstanceFactory;
 import io.undertow.servlet.api.InstanceHandle;
 import io.undertow.servlet.api.ListenerInfo;
 import io.undertow.servlet.api.MimeMapping;
+import io.undertow.servlet.api.ServletStackTraces;
 import io.undertow.servlet.handlers.DefaultServlet;
 import io.undertow.servlet.util.ImmediateInstanceHandle;
 
@@ -137,8 +138,9 @@ public class UndertowEmbeddedServletContainerFactory extends
                         new io.undertow.servlet.api.ErrorPage(springErrorPage.getPath());
                 servletBuilder.addErrorPage(undertowErrorpage);
             }
-
         }
+        servletBuilder.setServletStackTraces(ServletStackTraces.NONE);
+
         File root = getValidDocumentRoot();
         if (root != null && root.isDirectory()) {
             servletBuilder.setResourceManager(new FileResourceManager(getValidDocumentRoot(), 0));

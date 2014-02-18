@@ -22,14 +22,6 @@ public class UndertowEmbeddedServletContainerFactoryTests extends
         return new UndertowEmbeddedServletContainerFactory();
     }
 
-    @Override
-    @Ignore
-    @Test
-    // Wait for the https://issues.jboss.org/browse/UNDERTOW-192
-    public void errorPage() throws Exception {
-        super.errorPage();
-    }
-
     @Test
     public void errorPage404() throws Exception {
         ConfigurableEmbeddedServletContainerFactory factory = getFactory();
