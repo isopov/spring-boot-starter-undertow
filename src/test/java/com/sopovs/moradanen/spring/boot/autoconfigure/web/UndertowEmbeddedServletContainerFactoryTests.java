@@ -3,7 +3,6 @@ package com.sopovs.moradanen.spring.boot.autoconfigure.web;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.boot.context.embedded.AbstractEmbeddedServletContainerFactoryTests;
 import org.springframework.boot.context.embedded.ConfigurableEmbeddedServletContainerFactory;
@@ -31,13 +30,5 @@ public class UndertowEmbeddedServletContainerFactoryTests extends
         this.container.start();
         assertThat(getResponse("http://localhost:8080/hello"), equalTo("Hello World"));
         assertThat(getResponse("http://localhost:8080/not-found"), equalTo("Hello World"));
-    }
-
-    @Override
-    @Ignore
-    @Test
-    public void mimeType() throws Exception {
-        // TODO
-        super.mimeType();
     }
 }

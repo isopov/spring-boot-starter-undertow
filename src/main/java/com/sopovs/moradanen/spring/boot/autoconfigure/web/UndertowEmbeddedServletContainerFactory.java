@@ -12,6 +12,7 @@ import io.undertow.server.handlers.resource.Resource;
 import io.undertow.server.handlers.resource.ResourceChangeListener;
 import io.undertow.server.handlers.resource.ResourceManager;
 import io.undertow.server.handlers.resource.URLResource;
+import io.undertow.servlet.api.DefaultServletConfig;
 import io.undertow.servlet.api.DeploymentInfo;
 import io.undertow.servlet.api.DeploymentManager;
 import io.undertow.servlet.api.InstanceFactory;
@@ -117,6 +118,7 @@ public class UndertowEmbeddedServletContainerFactory extends
         servletBuilder.setDeploymentName(getDeploymentName());
         if (isRegisterDefaultServlet()) {
             servletBuilder.addServlet(servlet("default", DefaultServlet.class));
+            servletBuilder.setDefaultServletConfig(new DefaultServletConfig(true));
         }
         if (isRegisterJspServlet()) {
             logger.error("JSPs are not supported with Undertow");
