@@ -4,7 +4,7 @@ This is a try to add [Undertow](http://undertow.io) servlet container option to 
 
 Undertow is the basis of the [Wildfly](http://www.wildfly.org/) Application Server which is the basis of the Jboss Application Server and is based on the [XNIO](http://www.jboss.org/xnio) lowlevel I/O library.
 
-To use it (it is now capable of serving only very simple hello world applications) add:
+To use it add:
 ```
 <dependency>
 	<groupId>com.sopovs.moradanen.spring.boot.undertow</groupId>
