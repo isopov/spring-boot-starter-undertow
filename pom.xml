@@ -8,6 +8,9 @@
 	</parent>
 	<groupId>com.sopovs.moradanen.spring.boot.undertow</groupId>
 	<artifactId>spring-boot-starter-undertow</artifactId>
+	<name>Spring Boot Undertow Starter</name>
+	<description>Spring Boot Undertow Starter</description>
+	<url>https://github.com/isopov/spring-boot-starter-undertow</url>
 	<version>0.2.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
@@ -116,6 +119,19 @@
 				<executions>
 					<execution>
 						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.9.1</version>
+				<executions>
+					<execution>
+						<id>attach-javadoc</id>
 						<goals>
 							<goal>jar</goal>
 						</goals>

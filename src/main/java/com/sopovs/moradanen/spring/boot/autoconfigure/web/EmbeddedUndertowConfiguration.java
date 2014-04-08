@@ -14,6 +14,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 
+/**
+ * @author isopov
+ */
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @Configuration
 @ConditionalOnWebApplication

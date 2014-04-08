@@ -4,6 +4,9 @@ import org.springframework.boot.context.embedded.ConfigurableEmbeddedServletCont
 import org.springframework.boot.context.embedded.EmbeddedServletContainerCustomizer;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+/**
+ * @author isopov
+ */
 @ConfigurationProperties(value = "undertow", ignoreUnknownFields = false)
 public class UndertowProperties implements EmbeddedServletContainerCustomizer {
 

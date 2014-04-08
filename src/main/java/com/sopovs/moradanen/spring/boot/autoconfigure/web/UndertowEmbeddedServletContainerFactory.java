@@ -45,6 +45,9 @@ import org.springframework.boot.context.embedded.ServletContextInitializer;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.ResourceLoader;
 
+/**
+ * @author isopov
+ */
 public class UndertowEmbeddedServletContainerFactory extends
         AbstractEmbeddedServletContainerFactory implements ResourceLoaderAware, DisposableBean {
 

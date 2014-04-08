@@ -13,6 +13,9 @@ import org.springframework.boot.context.embedded.EmbeddedServletContainer;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerException;
 import org.springframework.util.StringUtils;
 
+/**
+ * @author isopov
+ */
 public class UndertowEmbeddedServletContainer implements EmbeddedServletContainer {
 
     private final DeploymentManager manager;

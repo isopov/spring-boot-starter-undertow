@@ -14,6 +14,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
+/**
+ * @author isopov
+ */
 @Configuration
 @EnableConfigurationProperties
 @ConditionalOnWebApplication
