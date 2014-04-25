@@ -11,7 +11,7 @@
 	<name>Spring Boot Undertow Starter</name>
 	<description>Spring Boot Undertow Starter</description>
 	<url>https://github.com/isopov/spring-boot-starter-undertow</url>
-	<version>0.2.2</version>
+	<version>0.2.3-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 
@@ -19,7 +19,7 @@
 		<connection>scm:git:git@github.com:isopov/spring-boot-starter-undertow.git</connection>
 		<developerConnection>scm:git:git@github.com:isopov/spring-boot-starter-undertow.git</developerConnection>
 		<url>scm:git:git@github.com:isopov/spring-boot-starter-undertow.git</url>
-		<tag>0.2.2</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 	<properties>
