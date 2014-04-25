@@ -34,6 +34,9 @@ public class UndertowEmbeddedServletContainer implements EmbeddedServletContaine
 
     @Override
     public synchronized void start() throws EmbeddedServletContainerException {
+	    if(getPort() < 0) {
+		    return;
+	    }
         if (undertow == null) {
             try {
                 HttpHandler servletHandler = manager.start();

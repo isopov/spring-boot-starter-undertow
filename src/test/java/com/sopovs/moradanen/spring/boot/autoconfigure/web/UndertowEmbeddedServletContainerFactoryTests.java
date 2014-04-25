@@ -12,8 +12,7 @@ import org.springframework.boot.context.embedded.ExampleServlet;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.http.HttpStatus;
 
-public class UndertowEmbeddedServletContainerFactoryTests extends
-        AbstractEmbeddedServletContainerFactoryTests
+public class UndertowEmbeddedServletContainerFactoryTests extends AbstractEmbeddedServletContainerFactoryTests
 {
 
     @Override
@@ -26,8 +25,7 @@ public class UndertowEmbeddedServletContainerFactoryTests extends
     public void errorPage404() throws Exception {
 	    AbstractEmbeddedServletContainerFactory factory = getFactory();
         factory.addErrorPages(new ErrorPage(HttpStatus.NOT_FOUND, "/hello"));
-        this.container = factory.getEmbeddedServletContainer(
-		        new ServletRegistrationBean(new ExampleServlet(), "/hello"));
+        this.container = factory.getEmbeddedServletContainer(new ServletRegistrationBean(new ExampleServlet(), "/hello"));
         this.container.start();
         assertThat(getResponse("http://localhost:8080/hello"), equalTo("Hello World"));
         assertThat(getResponse("http://localhost:8080/not-found"), equalTo("Hello World"));
