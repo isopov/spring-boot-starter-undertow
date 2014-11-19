@@ -1,29 +1,5 @@
-[![][travis img]][travis]
-
-This is a try to add [Undertow](http://undertow.io) servlet container option to the [spring-boot](http://projects.spring.io/spring-boot/) along the Jetty and Tomcat servlet containers.
+This was a try to add [Undertow](http://undertow.io) servlet container option to the [spring-boot](http://projects.spring.io/spring-boot/) along the Jetty and Tomcat servlet containers.
 
 Undertow is the basis of the [Wildfly](http://www.wildfly.org/) Application Server which is the basis of the Jboss Application Server and is based on the [XNIO](http://www.jboss.org/xnio) lowlevel I/O library.
 
-To use it add:
-```
-<dependency>
-	<groupId>com.sopovs.moradanen.spring.boot.undertow</groupId>
-	<artifactId>spring-boot-starter-undertow</artifactId>
-	<version>${version}</version>
-</dependency>
-```
-
-to the dependencies of your spring-boot project and 
-```
-<repository>
-	<id>isopov-dintray</id>
-	<name>isopov Bintray</name>
-	<url>http://dl.bintray.com/isopov/maven/</url>
-</repository>
-```
-
-to the repositories section.
-
-
-[travis]:http://travis-ci.org/isopov/spring-boot-starter-undertow
-[travis img]:https://secure.travis-ci.org/isopov/spring-boot-starter-undertow.png
+Starting with spring-boot 1.2.0 it was merged to the upstream spring-boot.
